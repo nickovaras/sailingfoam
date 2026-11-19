@@ -1,0 +1,56 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      surfaceFeatureExtractDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+mast.stl
+{
+    extractionMethod    extractFromSurface;
+
+    includedAngle       150;
+
+    subsetFeatures
+    {
+        nonManifoldEdges no;
+        openEdges        yes;
+    }
+
+    writeObj            yes;
+}
+
+mainsail.stl
+{
+    extractionMethod    extractFromSurface;
+
+    includedAngle       150;
+
+    subsetFeatures
+    {
+        nonManifoldEdges no;
+        openEdges        yes;
+    }
+
+    writeObj            yes;
+}
+
+headsail.stl
+{
+    extractionMethod    extractFromSurface;
+
+    includedAngle       150;
+
+    subsetFeatures
+    {
+        nonManifoldEdges no;
+        openEdges        yes;
+    }
+
+    writeObj            yes;
+}
+
+// ************************************************************************* //

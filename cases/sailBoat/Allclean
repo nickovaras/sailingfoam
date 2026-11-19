@@ -1,0 +1,12 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/CleanFunctions      # Tutorial clean functions
+#------------------------------------------------------------------------------
+
+# cleanCase0 is safe here: initial conditions live in 0.orig/,
+# restored into 0/ / processor dirs by Allrun (restore0Dir)
+cleanCase0
+
+# Remove extracted feature edges (keep the STL geometry)
+rm -rf constant/extendedFeatureEdgeMesh
+rm -f constant/triSurface/*.eMesh constant/triSurface/*.obj

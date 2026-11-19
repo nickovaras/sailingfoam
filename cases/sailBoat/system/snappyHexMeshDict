@@ -1,0 +1,175 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+castellatedMesh true;
+locatePoints    true;
+snap            true;
+addLayers       false;
+
+// Geometry. All surfaces are of class searchableSurface.
+geometry
+{
+    mast.stl
+    {
+        type triSurfaceMesh;
+        name mast;
+    }
+
+    mainsail.stl
+    {
+        type triSurfaceMesh;
+        name mainsail;
+    }
+
+    headsail.stl
+    {
+        type triSurfaceMesh;
+        name headsail;
+    }
+
+    refinementBoxOuter
+    {
+        type box;
+        min  (-2 -2.5 -1);
+        max  ( 6  2.5  5);
+    }
+
+    refinementBoxInner
+    {
+        type box;
+        min  (-0.5 -2 -0.5);
+        max  ( 5  2  4.5);
+    }
+}
+
+castellatedMeshControls
+{
+    // Refinement parameters
+    maxLocalCells      1000000;
+    maxGlobalCells     8000000;
+    minRefinementCells 4;
+    nCellsBetweenLevels 1;
+
+    // Explicit feature edge refinement (from surfaceFeatureExtract)
+    features
+    (
+        { file "mast.eMesh";      level 6; }
+        { file "mainsail.eMesh";  level 5; }
+        { file "headsail.eMesh";  level 5; }
+    );
+
+    resolveFeatureAngle 30;
+
+    // Surface based refinement: min and max level per surface
+    refinementSurfaces
+    {
+        mast
+        {
+            level (5 6);
+            patchInfo
+            {
+                type wall;
+            }
+        }
+
+        mainsail
+        {
+            level (4 5);
+            patchInfo
+            {
+                type wall;
+            }
+        }
+
+        headsail
+        {
+            level (4 5);
+            patchInfo
+            {
+                type wall;
+            }
+        }
+    }
+
+    // Region-wise refinement (boxes defined in geometry)
+    refinementRegions
+    {
+        refinementBoxOuter
+        {
+            mode   inside;
+            levels ((1E15 2));
+        }
+
+        refinementBoxInner
+        {
+            mode   inside;
+            levels ((1E15 3));
+        }
+    }
+
+    // Point that must stay in the mesh (outside all closed surfaces)
+    locationInMesh (10 0 4);
+
+    allowFreeStandingZoneFaces true;
+}
+
+snapControls
+{
+    nSmoothPatch 3;
+    tolerance    2.0;
+    nSolveIter   30;
+    nRelaxIter   5;
+
+    nFeatureSnapIter      10;
+    implicitFeatureSnap   false;
+    explicitFeatureSnap   true;
+    multiRegionFeatureSnap false;
+}
+
+addLayersControls
+{
+    relativeSizes true;
+
+    layers
+    {
+    }
+
+    expansionRatio        1.2;
+    finalLayerThickness   0.3;
+    minThickness          0.1;
+    nGrow                 0;
+    featureAngle          60;
+    slipFeatureAngle      30;
+    nRelaxIter            3;
+    nSmoothSurfaceNormals 1;
+    nSmoothNormals        3;
+    nSmoothThickness      10;
+    maxFaceThicknessRatio 0.5;
+    maxThicknessToMedialRatio 0.3;
+    minMedialAxisAngle    90;
+    nBufferCellsNoExtrude 0;
+    nLayerIter            50;
+}
+
+meshQualityControls
+{
+    #includeEtc "caseDicts/meshQualityDict"
+
+    //- Slightly relaxed for thin sail surfaces
+    maxBoundarySkewness 20;
+    minTetQuality       -1e-30;
+
+    nSmoothScale        4;
+    errorReduction      0.75;
+}
+
+mergeTolerance 1e-6;
+
+// ************************************************************************* //

@@ -1,0 +1,32 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \    /   O peration     | Version:  v2512                                 |
+|   \  /    A nd           | Website:  www.openfoam.com                      |
+|    \/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+forceCoeffs1
+{
+    type            forceCoeffs;
+
+    libs            (forces);
+
+    writeControl    timeStep;
+    writeInterval   1;
+
+    log             yes;
+
+    patches         (mast mainsail headsail);
+    rho             rhoInf;      // Indicates incompressible
+    rhoInf          1;           // Matches simpleFoam (rho = 1)
+    liftDir         (0 1 0);     // Lift perpendicular to wind
+    dragDir         (1 0 0);     // Drag along the wind
+    CofR            (2.4 0 0);   // Mast base
+    pitchAxis       (0 1 0);
+    magUInf         15;          // Free-stream velocity [m/s]
+    lRef            3.7;         // Mast height
+    Aref            10;          // Estimated projected rig area [m^2]
+}
+
+// ************************************************************************* //

@@ -1,0 +1,19 @@
+services:
+  sailingfoam:
+    build: .
+    container_name: openfoam
+    user: "1000:1000"
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - ~/sailingfoam:/home/openfoam/sailingfoam
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu, graphics, utility, compute]
+    command: sleep infinity

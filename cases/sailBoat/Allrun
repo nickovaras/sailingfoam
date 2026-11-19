@@ -1,0 +1,37 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+#------------------------------------------------------------------------------
+
+# Extract feature edges (LE/TE, mast edges) for snappyHexMesh
+runApplication surfaceFeatureExtract
+
+# Base mesh
+runApplication blockMesh
+
+# Distribute mesh to processors
+runApplication decomposePar
+
+# Snap mesh to rig geometry (parallel)
+runParallel snappyHexMesh -overwrite
+
+# Re-copy initial fields into the processor dirs. Needed because snapping
+# adds new wall patches (mast/mainsail/headsail) that the 0/ fields written
+# by decomposePar do not yet have boundary entries for.
+restore0Dir -processor
+
+# Initialise with potential flow solution (parallel)
+runParallel potentialFoam -writephi
+
+# Mesh quality report (parallel)
+runParallel checkMesh -writeFields '(nonOrthoAngle)' -constant
+
+# Run the solver (parallel)
+runParallel $(getApplication)
+
+# Reconstruct single-domain mesh and fields for post-processing
+runApplication reconstructParMesh -constant
+runApplication reconstructPar -latestTime
+
+# Convert to VTK for ParaView (the apt ParaView package has no OpenFOAM reader)
+runApplication foamToVTK

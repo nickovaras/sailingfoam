@@ -1,0 +1,90 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+// Interpolate U to create near-wall UNear
+near
+{
+    type    nearWallFields;
+    libs    (fieldFunctionObjects);
+
+    // Output every
+    writeControl    writeTime;
+
+    // Calculate every
+    executeControl  writeTime;
+
+    // Fields to be sampled. Per field original name and mapped field to
+    // create.
+    // Note: fields only get updated when writing!
+    fields
+    (
+        (U UNear)
+    );
+
+    // Patches/groups to sample (regular expressions)
+    patches         ("(mast|mainsail|headsail)");
+
+    // Distance to sample (near-wall cells are ~1-2 cm)
+    distance        0.01;
+}
+
+
+// Use UNear to track along wall
+wallBoundedStreamLines
+{
+    type    wallBoundedStreamLine;
+    libs    (fieldFunctionObjects);
+
+    U           UNear;           // Velocity field for tracking
+    fields      (p U k UNear);   // Fields to sample
+    setFormat   vtk;
+    direction   forward;
+    lifeTime    200;    // Steps particles can travel before being removed
+    cloud       wallBoundedParticleTracks;
+
+    seedSampleSet
+    {
+        type        patchSeed;
+
+        //- Seed over the whole rig (box covering mast + both sails)
+        uniformCoeffs
+        {
+            axis        x;  //distance;
+            start       (0.4 -1.3 -0.2);
+            end         (4.1 0.2 3.7);
+            nPoints     100;
+        }
+
+        patchSeedCoeffs
+        {
+            patches     ("(mast|mainsail|headsail)");
+            axis        x;  //distance;
+            maxPoints   5000;
+        }
+    }
+
+    // Optional entries
+    // bounds          (0.2 -10 -10)(0.22 10 10);
+    // trackLength     1e-3;
+    // nSubCycle       1;
+    interpolationScheme cellPoint;
+
+    // Optional (inherited) entries
+    region          region0;
+    enabled         true;
+    log             true;
+    timeStart       0;
+    timeEnd         1000;
+    executeControl  timeStep;
+    executeInterval 1;
+    writeControl    writeTime;
+    writeInterval   -1;
+}
+
+
+// ************************************************************************* //
