@@ -1,4 +1,7 @@
 # sailingfoam
+
+![Streamlines over sails](https://github.com/nickovaras/sailingfoam/blob/main/streamlines.png?raw=true)
+
 OpenFOAM, local LLMs and Sailboats
 
 Computational Fluid Dynamics (CFD) has traditionally been a field that required substantial 
